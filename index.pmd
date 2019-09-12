@@ -222,6 +222,29 @@ Part C
 
 > (15 points) Create a new program, myhttpd3.cpp, based on your modification in b). Change the program to a daemon (running in background).
 
+I've modified the program `project/myhttpd3.cpp` to daemonize itself using the following patch:
+
+    diff --git a/project/myhttpd3.cpp b/project/myhttpd3.cpp
+    index 5222c4a..068b999 100644
+    --- a/project/myhttpd3.cpp
+    +++ b/project/myhttpd3.cpp
+    @@ -89,6 +89,14 @@ int main(int argc, char *argv[])
+     		opt = getopt( argc, argv, "dhl:p:r:t:n:s:" );
+     	}
+     
+    +	// Daemonize
+    +
+    +	pid_t pid = fork();
+    +
+    +	if (pid < 0) { exit(1); } // Forking failed
+    +	if (pid > 0) { exit(0); } // Kill the parent
+    +	freopen("log.txt", "a+", stdout); // Redirect stdout for good measure
+    +
+     	hsock = socket(AF_INET, SOCK_STREAM, 0);
+     	if (hsock == -1)
+     	{
+
+
 d.  (10 points) WeChat is a popular social networking application in
     China. Red envelope is an application in WeChat which can be used to
     send “lucky money” to friends. As estimated in 2017, a total of 14.2

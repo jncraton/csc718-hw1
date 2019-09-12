@@ -89,6 +89,14 @@ int main(int argc, char *argv[])
 		opt = getopt( argc, argv, "dhl:p:r:t:n:s:" );
 	}
 
+	// Daemonize
+
+	pid_t pid = fork();
+
+	if (pid < 0) { exit(1); } // Forking failed
+	if (pid > 0) { exit(0); } // Kill the parent
+	freopen("log.txt", "a+", stdout); // Redirect stdout for good measure
+
 	hsock = socket(AF_INET, SOCK_STREAM, 0);
 	if (hsock == -1)
 	{
