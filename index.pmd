@@ -151,11 +151,76 @@ Before we get started, let's benchmark the initial implementation to see if we c
     Longest transaction:	        1.04
     Shortest transaction:	        0.00
      
+I decided to implement threading very simply. I do not use a thread pool and simply create a new thread for each request. The thread is detached and ends on its own. Here's the patch to implement this that I applied to `projects/myhttpd2.cpp`:
 
+    diff --git a/project/myhttpd2.cpp b/project/myhttpd2.cpp
+    index f1c56ed..5222c4a 100644
+    --- a/project/myhttpd2.cpp
+    +++ b/project/myhttpd2.cpp
+    @@ -8,6 +8,7 @@
+     #include <sys/socket.h>
+     #include <arpa/inet.h>
+     #include <unistd.h>
+    +#include <pthread.h>
+     
+     int host_port = 8080;
+     
+    @@ -20,11 +21,13 @@ void usage()
+     	printf("	-p: change default port number for example: -p 8080\n\n");
+     }
+     
+    -int httpHandler(int socketfd)
+    +void* httpHandler(void* fd_p)
+     {
+     	char buffer[1024];
+     	int buffer_len = 1024;
+     	int bytecount;
+    +	int socketfd = *(int*)fd_p;
+    +	free(fd_p);
+     
+     	memset(buffer, 0, buffer_len);
+     	if ((bytecount = recv(socketfd, buffer, buffer_len, 0))== -1)
+    @@ -134,7 +137,14 @@ int main(int argc, char *argv[])
+     		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
+     		{
+     			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
+    -			httpHandler(socketfd);
+    +
+    +			pthread_t thread;
+    +
+    +			void* fdcopy = malloc(4);
+    +			*(int*)fdcopy = socketfd;
+    +
+    +			pthread_create(&thread, NULL, httpHandler, fdcopy);
+    +			pthread_detach(thread);
+     		}
+     		else
+     		{
 
-c.  (15 points) Create a new program, myhttpd3.cpp, based on your
-    modification in b). Change the program to a daemon (running in
-    background).
+Let's test this again:
+
+    ** SIEGE 4.0.4
+    ** Preparing 16 concurrent users for battle.
+    The server is now under siege...
+    Transactions:		     1600000 hits
+    Availability:		      100.00 %
+    Elapsed time:		       30.22 secs
+    Data transferred:	       56.46 MB
+    Response time:		        0.00 secs
+    Transaction rate:	    52945.07 trans/sec
+    Throughput:		        1.87 MB/sec
+    Concurrency:		       13.00
+    Successful transactions:     1600000
+    Failed transactions:	           0
+    Longest transaction:	        3.03
+    Shortest transaction:	        0.00
+
+We can see that we actually have somewhat worse performance despite implementing threading. This is likely because we've introduced some memory allocation, thread creation is not free, and the work that each thread is doing is not time consuming since I'm testing this against localhost.
+
+Part C
+------
+
+> (15 points) Create a new program, myhttpd3.cpp, based on your modification in b). Change the program to a daemon (running in background).
 
 d.  (10 points) WeChat is a popular social networking application in
     China. Red envelope is an application in WeChat which can be used to
