@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <pthread.h>
 
 int host_port = 8080;
 
@@ -20,11 +21,12 @@ void usage()
 	printf("	-p: change default port number for example: -p 8080\n\n");
 }
 
-int httpHandler(int socketfd)
+void* httpHandler(void* fd_p)
 {
 	char buffer[1024];
 	int buffer_len = 1024;
 	int bytecount;
+	int socketfd = *(int*)fd_p;
 
 	memset(buffer, 0, buffer_len);
 	if ((bytecount = recv(socketfd, buffer, buffer_len, 0))== -1)
@@ -134,7 +136,14 @@ int main(int argc, char *argv[])
 		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
 		{
 			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
-			httpHandler(socketfd);
+
+			pthread_t thread;
+
+			void* fdcopy = malloc(4);
+			*(int*)fdcopy = socketfd;
+
+			pthread_create(&thread, NULL, httpHandler, fdcopy);
+			pthread_detach(thread);
 		}
 		else
 		{
