@@ -113,11 +113,25 @@ Part A
 
 > (10 points) The posted program has a bug. A function call has been skipped on purpose in the program. Review the myhttpd1.cpp code, find the problem, and fix the code.
 
+The updated `myhttpd1.cpp` can be found in the projects directory. It was fixed using the following patch:
 
+    diff --git a/project/myhttpd1.cpp b/project/myhttpd1.cpp
+    index fb655da..f1c56ed 100644
+    --- a/project/myhttpd1.cpp
+    +++ b/project/myhttpd1.cpp
+    @@ -134,6 +134,7 @@ int main(int argc, char *argv[])
+     		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
+     		{
+     			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
+    +			httpHandler(socketfd);
+     		}
+     		else
+     		{
 
-b.  (15 points) myhttpd1.cpp is a single thread program. Create a new
-    program, myhttpd2.cpp, based on myhttpd1.cpp and use multiple
-    threads to process http request.
+Part B
+------
+
+> (15 points) myhttpd1.cpp is a single thread program. Create a new program, myhttpd2.cpp, based on myhttpd1.cpp and use multiple threads to process http request.
 
 c.  (15 points) Create a new program, myhttpd3.cpp, based on your
     modification in b). Change the program to a daemon (running in
