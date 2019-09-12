@@ -1,3 +1,160 @@
-% Title
-% Author
-% August 5th, 2018
+% CSC718 Homework 1
+% Jon Craton
+% October 1, 2019
+
+Problem 1 
+=========
+
+> (10 points) The central processing unit (CPU), also called a processor, receives a program's instructions; decodes those instructions, breaking them into individual parts; executes those instructions; and reports the results, writing them back into memory. The format for that processor comes in one of two primary types: vector and scalar.
+
+Part A
+------
+
+> What is a vector processor?
+
+Vector processors use instructions that operate on multiple data values. This can be referred to as a Single Instruction, Multiple Data (SIMD) design. Modern GPUs are SIMD devices. While most common CPUs are not generally thought of as vector processors, many do include SIMD instructions such as those found in the AVX-512 instructions that allow performing an operation on 16 single precision floating point values.
+
+Part B
+------
+
+> What is a scalar processor? How about superscalar processor?
+
+A scalar processor is one that operates on only a single data item at a time. This could also be called a Single Instruction, Single Data (SISD) processor.
+
+A superscalar processor still maps a single instruction to a single piece of data, but several instructions may be running at the same time. This is referred to as instruction-level parallelism, and can be implemented using many techniques. Nearly all modern CPUs are able to execute multiple instructions in paralell.
+
+Part C
+------
+
+> What are the differences between vector and scalar processor?
+
+The core difference is that a vector processor operates on multiple data items while a scalar process operates on only a single data item. In reality, the lines can get blurry as a single process may support both scalar and vector operations.
+
+Problem 2
+=========
+
+> (10 points) Instruction-Level Parallelism (ILP) can be implemented in both hardware and software level to increase the number of instructions executed in parallel. Briefly describe the following ILP techniques:
+
+Part A
+------
+
+> Instruction pipelining
+
+Instruction pipelining allows a CPU to be divided into stages that each perform a unit of work to complete the execution of an instruction. For many instructions, an instruction stage can begin working on the next instruction while the current instruction is still the pipeline. This allows the CPU to work on multiple instructions during a single clock cycle.
+
+Part B
+------
+
+> Speculative execution
+
+Speculative execution involved executing instructions that have not yet been specifically requested or whose data values may not yet be fully known. The CPU may decide to use speculative execution when it has resources available to execute instructions, but no work to do. In the case where the CPU executes the correct instructions, the values are already available. In the case where the instruction is not ever really executed, its output is simply discarded. This is an effective way to make use of otherwise idle resources.
+
+Part C
+------
+
+> Branch prediction
+
+Branch prediction is a specific example of speculative execution. When encountering a branch instruction in a superscalar CPU, the CPU can either let most of its functional units idle while the appropriate branch calculation works its way through the pipeline, or it can simply pick a branch to execute speculatively. If it chooses correctly, it has likely completed many instructions in the time it tooks to fully compute the branch instructions. If it chose incorrectly, this work must be discarded, pipeline flushed, and work from the correct branch started. This is very expensive, so improving branch prediction has been one way to increase single-threaded performance in modern CPUs.
+
+Problem 3
+=========
+
+> (10 pints) Why parallel computing is critical to improve computer performance? In another words, what are the limitations by increasing transistor density in a single chip to improve its performance?
+
+There are several limits that we are currently facing in improving the single-threaded performance of modern CPUs.
+
+1. Fabrication expense - We appear to be hitting the limits of transistor scaling at a reasonable cost. The cost of R&D for new process nodes continues to increase as well as the defect rate in volume production. This increases the cost of CPUs.
+
+2. Diminshing returns of addtional transistors - Transistor count is not linearly related to performance. Additional transistors don't inherently increase CPU performance unless we can find clever ways to use them. We can increase cache sizes, improve branch predictors, and perhaps stretch pipelines, but these things provide fraction performance improvements at a large cost in die area and transistor count.
+
+3. Transistors can't go faster - While it is possible to run transistors much faster than a few GHz in a lab environment, this isn't feasible in a production CPU due to thermal issues. Transistors convert electricity to heat as they operate, and the faster they operates, the more electricity they consume and heat they produce. We don't currently know how to operate chips significantly faster for long periods of time without the chips burning up their own circuitry.
+
+Problem 4
+=========
+
+> (10 points) What are the tradeoffs between preemptive scheduling and non-preemptive scheduling?
+
+Preemptive scheduling allows the operating system to interupt running processes. In non-preemptive, or cooperative, multitasking, individual processes are responsible for returning control back to the operating system.
+
+Preemptive scheduling generally provides a more reliable computer experience, as an individual program is not allowed to consume all resources for an extended period of time and freeze the rest of the system. It will be somewhat less performant in compute intensive scenarios. Any preemption necessitates a context switch that comes at a high cost in superscalar CPUs. While context switching is expensive, in a modern CPU this represents a tiny fraction of the total time available for computation. A non-preemtive system will allow a computational task to fully consume CPU resources until it is complete. This can be more performant and also makes possible certain real-time requirements.
+
+Problem 5
+=========
+
+> (10 points) Two sample solutions for the dinning philosopher have been posted in the class web site: one solution is based on mutex and condition variable, the other solution is based on semaphore. Go through the two solutions and answer the following two questions:
+
+Part A
+------
+
+> (5 points) Describe the difference of these two solutions.
+
+The main difference between the two solutions is that in the monitor-free version, philosophers decide to eat once they have aquired both of their utensils. They do this by locking one followed by the other. In the implementation using a mutex and a condition variable, philosophers do not aquire their utensils unless both are available. Both solutions appear to be valid based on my reading of them.
+
+Part B
+------
+
+> (5 points) which solution is better? Why?
+
+The solution using mutexes and condition variables is superior. The simple semaphor version locks up single forks while philosophers wait for the second utensil to become available. This consumes time for no benefit. It would be better to leave the utensil on the table so that their neighbor can use it if they are able.
+
+6.  (Programming Assignment, 50 points) myhttpd1.cpp is a simple
+    webserver written in C. The sample code has been posted in the class
+    website. You can compile and run the program using the following
+    commands in a Linux environment
+
+> &gt;gcc myhttpd1 –o myhttpd1
+>
+> &gt;./myhttpd1 –p 8080
+
+After you run the program, open a browser and type
+<http://localhost:8080> and you will see “Welcome to my first page!” in
+the browser.
+
+a.  (10 points) The posted program has a bug. A function call has been
+    skipped on purpose in the program. Review the myhttpd1.cpp code,
+    find the problem, and fix the code.
+
+b.  (15 points) myhttpd1.cpp is a single thread program. Create a new
+    program, myhttpd2.cpp, based on myhttpd1.cpp and use multiple
+    threads to process http request.
+
+c.  (15 points) Create a new program, myhttpd3.cpp, based on your
+    modification in b). Change the program to a daemon (running in
+    background).
+
+d.  (10 points) WeChat is a popular social networking application in
+    China. Red envelope is an application in WeChat which can be used to
+    send “lucky money” to friends. As estimated in 2017, a total of 14.2
+    billion red envelopes were exchanged via WeChat on New Year’s Eve
+    alone, peaking at midnight with 760,000 transactions per second. It
+    usually takes seconds for WeChat to process each transaction. For
+    such high-volume concurrent transaction requests, what remediations
+    could be used on the server side to ensure each request is served
+    promptly?
+
+
+
+
+Due: By Midnight, Oct 1, 2019
+
+Note: For all the programming assignments, you can choose any operating
+systems you want. I will usually provide C/C++ samples for the
+programming assignments. If you prefer to use other languages, e.g.,
+Java, they are accepted too. A README.txt is required to submit any
+programming assignments. In the README.txt, you need to provide the
+following information:
+
+1)  How to compile your program?
+
+2)  How to run your program?
+
+3)  What is the average running time of your program?
+
+4)  What are the expected output results when I run your program?
+
+5)  Any descriptions which may help me to compile, run, and verify your
+    answers. (FYI: I check every programming assignment turned in!)
+
+Zip all you source code, project files, supporting files, and README.txt
+and submit the all-in-one zip file together to the D2L Dropbox. If you
+have any questions about the homework, please let me know.
