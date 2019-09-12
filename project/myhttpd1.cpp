@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
 		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
 		{
 			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
+			httpHandler(socketfd);
 		}
 		else
 		{
