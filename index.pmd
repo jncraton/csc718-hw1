@@ -133,6 +133,26 @@ Part B
 
 > (15 points) myhttpd1.cpp is a single thread program. Create a new program, myhttpd2.cpp, based on myhttpd1.cpp and use multiple threads to process http request.
 
+Before we get started, let's benchmark the initial implementation to see if we can beat it using additional threads:
+
+    ** SIEGE 4.0.4
+    ** Preparing 16 concurrent users for battle.
+    The server is now under siege...
+    Transactions:		     1600000 hits
+    Availability:		      100.00 %
+    Elapsed time:		       24.95 secs
+    Data transferred:	       56.46 MB
+    Response time:		        0.00 secs
+    Transaction rate:	    64128.25 trans/sec
+    Throughput:		        2.26 MB/sec
+    Concurrency:		       12.61
+    Successful transactions:     1600000
+    Failed transactions:	           0
+    Longest transaction:	        1.04
+    Shortest transaction:	        0.00
+     
+
+
 c.  (15 points) Create a new program, myhttpd3.cpp, based on your
     modification in b). Change the program to a daemon (running in
     background).
