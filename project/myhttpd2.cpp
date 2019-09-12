@@ -27,6 +27,7 @@ void* httpHandler(void* fd_p)
 	int buffer_len = 1024;
 	int bytecount;
 	int socketfd = *(int*)fd_p;
+	free(fd_p);
 
 	memset(buffer, 0, buffer_len);
 	if ((bytecount = recv(socketfd, buffer, buffer_len, 0))== -1)
