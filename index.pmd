@@ -97,22 +97,23 @@ Part B
 
 The solution using mutexes and condition variables is superior. The simple semaphor version locks up single forks while philosophers wait for the second utensil to become available. This consumes time for no benefit. It would be better to leave the utensil on the table so that their neighbor can use it if they are able.
 
-6.  (Programming Assignment, 50 points) myhttpd1.cpp is a simple
-    webserver written in C. The sample code has been posted in the class
-    website. You can compile and run the program using the following
-    commands in a Linux environment
+Problem 6
+=========
+
+> (Programming Assignment, 50 points) myhttpd1.cpp is a simple webserver written in C. The sample code has been posted in the class website. You can compile and run the program using the following commands in a Linux environment
 
 > &gt;gcc myhttpd1 –o myhttpd1
 >
 > &gt;./myhttpd1 –p 8080
 
-After you run the program, open a browser and type
-<http://localhost:8080> and you will see “Welcome to my first page!” in
-the browser.
+> After you run the program, open a browser and type <http://localhost:8080> and you will see “Welcome to my first page!” in the browser.
 
-a.  (10 points) The posted program has a bug. A function call has been
-    skipped on purpose in the program. Review the myhttpd1.cpp code,
-    find the problem, and fix the code.
+Part A
+------
+
+> (10 points) The posted program has a bug. A function call has been skipped on purpose in the program. Review the myhttpd1.cpp code, find the problem, and fix the code.
+
+
 
 b.  (15 points) myhttpd1.cpp is a single thread program. Create a new
     program, myhttpd2.cpp, based on myhttpd1.cpp and use multiple
