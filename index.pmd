@@ -244,19 +244,15 @@ I've modified the program `project/myhttpd3.cpp` to daemonize itself using the f
      	if (hsock == -1)
      	{
 
+Part D
+------
 
-d.  (10 points) WeChat is a popular social networking application in
-    China. Red envelope is an application in WeChat which can be used to
-    send “lucky money” to friends. As estimated in 2017, a total of 14.2
-    billion red envelopes were exchanged via WeChat on New Year’s Eve
-    alone, peaking at midnight with 760,000 transactions per second. It
-    usually takes seconds for WeChat to process each transaction. For
-    such high-volume concurrent transaction requests, what remediations
-    could be used on the server side to ensure each request is served
-    promptly?
+> (10 points) WeChat is a popular social networking application in China. Red envelope is an application in WeChat which can be used to send “lucky money” to friends. As estimated in 2017, a total of 14.2 billion red envelopes were exchanged via WeChat on New Year’s Eve alone, peaking at midnight with 760,000 transactions per second. It usually takes seconds for WeChat to process each transaction. For such high-volume concurrent transaction requests, what remediations could be used on the server side to ensure each request is served promptly?
+
+WeChat would benefit from having an architecture that allows these exchanges to happen in paralell. Certainly server software should be multithreaded as much as possible. Their overall network architecture should also include load balancers to share this load accross a number of different hosts. Ideally, they would be able to bring hosts up and done as load increases to allow a consistent low latency experience even when load is extreme. Handling 760k requests per second should be a terribly expensive, but they could need a lot of computing power depending on what it actually takes to process a transactions.
 
 
-
+-----
 
 Due: By Midnight, Oct 1, 2019
 
