@@ -4,4 +4,4 @@ all: myhttpd1 myhttpd2 myhttpd3
 	gcc -pthread -o $@ $<
 
 clean:
-	rm -f myhttpd1 myhttpd2 myhttpd3
+	rm -f myhttpd1 myhttpd2 myhttpd3 log.txt
