@@ -12,7 +12,7 @@ Part A
 
 > What is a vector processor?
 
-Vector processors use instructions that operate on multiple data values. This can be referred to as a Single Instruction, Multiple Data (SIMD) design. Modern GPUs are SIMD devices. While most common CPUs are not generally thought of as vector processors, many do include SIMD instructions such as those found in the AVX-512 instructions that allow performing an operation on 16 single precision floating point values.
+Vector processors use instructions that operate on multiple data values. This can be referred to as a Single Instruction, Multiple Data (SIMD) design. Modern GPUs are SIMD devices. While most common CPUs are not generally thought of as vector processors, many do include SIMD instructions such as those found in the AVX-512 instruction set that allow performing an operation on 16 single precision floating point values.
 
 Part B
 ------
@@ -40,14 +40,14 @@ Part A
 
 > Instruction pipelining
 
-Instruction pipelining allows a CPU to be divided into stages that each perform a unit of work to complete the execution of an instruction. For many instructions, an instruction stage can begin working on the next instruction while the current instruction is still the pipeline. This allows the CPU to work on multiple instructions during a single clock cycle.
+Instruction pipelining allows a CPU to be divided into stages that each perform a unit of work to complete the execution of an instruction. For many instructions, an instruction stage can begin working on the next instruction while the current instruction is still in the pipeline. This allows the CPU to work on multiple instructions during a single clock cycle.
 
 Part B
 ------
 
 > Speculative execution
 
-Speculative execution involved executing instructions that have not yet been specifically requested or whose data values may not yet be fully known. The CPU may decide to use speculative execution when it has resources available to execute instructions, but no work to do. In the case where the CPU executes the correct instructions, the values are already available. In the case where the instruction is not ever really executed, its output is simply discarded. This is an effective way to make use of otherwise idle resources.
+Speculative execution involves executing instructions that have not yet been specifically requested or whose data values may not yet be fully known. The CPU may decide to use speculative execution when it has resources available to execute instructions, but no work to do. In the case where the CPU executes the correct instructions with the correct data values, the output values are already available. In the case where the instruction is not ever really executed, its output is simply discarded. This is an effective way to make use of otherwise idle resources.
 
 Part C
 ------
@@ -63,11 +63,13 @@ Problem 3
 
 There are several limits that we are currently facing in improving the single-threaded performance of modern CPUs.
 
-1. Fabrication expense - We appear to be hitting the limits of transistor scaling at a reasonable cost. The cost of R&D for new process nodes continues to increase as well as the defect rate in volume production. This increases the cost of CPUs.
+1. Fabrication expense - We appear to be hitting the limits of transistor scaling at a reasonable cost. The cost of R&D for smaller process nodes continues to increase as well as the defect rate in volume production. This increases the cost of CPUs.
 
-2. Diminshing returns of addtional transistors - Transistor count is not linearly related to performance. Additional transistors don't inherently increase CPU performance unless we can find clever ways to use them. We can increase cache sizes, improve branch predictors, and perhaps stretch pipelines, but these things provide fraction performance improvements at a large cost in die area and transistor count.
+2. Diminshing returns of addtional transistors - Transistor count is not linearly related to single-threaded performance. Additional transistors don't inherently increase CPU performance unless we can find clever ways to use them. We can increase cache sizes, improve branch predictors, and perhaps stretch pipelines, but these things provide fractional performance improvements at a large cost in die area and transistor count.
 
 3. Transistors can't go faster - While it is possible to run transistors much faster than a few GHz in a lab environment, this isn't feasible in a production CPU due to thermal issues. Transistors convert electricity to heat as they operate, and the faster they operates, the more electricity they consume and heat they produce. We don't currently know how to operate chips significantly faster for long periods of time without the chips burning up their own circuitry.
+
+This makes parallel computing the future of high performance computing. We can't make single threads execute much faster, but we can add many, many more CPUs to our computers.
 
 Problem 4
 =========
@@ -76,7 +78,7 @@ Problem 4
 
 Preemptive scheduling allows the operating system to interupt running processes. In non-preemptive, or cooperative, multitasking, individual processes are responsible for returning control back to the operating system.
 
-Preemptive scheduling generally provides a more reliable computer experience, as an individual program is not allowed to consume all resources for an extended period of time and freeze the rest of the system. It will be somewhat less performant in compute intensive scenarios. Any preemption necessitates a context switch that comes at a high cost in superscalar CPUs. While context switching is expensive, in a modern CPU this represents a tiny fraction of the total time available for computation. A non-preemtive system will allow a computational task to fully consume CPU resources until it is complete. This can be more performant and also makes possible certain real-time requirements.
+Preemptive scheduling generally provides a more reliable computer experience, as an individual program is not allowed to consume all resources for an extended period of time and freeze the rest of the system. It will be somewhat less performant in compute intensive scenarios. Any preemption necessitates a context switch that comes at a cost, especially in modern, superscalar CPUs. While context switching is expensive, in a modern CPU this represents a tiny fraction of the total time available for computation. A non-preemtive system will allow a computational task to fully consume CPU resources until it is complete. This can be more performant and also makes possible certain real-time requirements.
 
 Problem 5
 =========
@@ -115,18 +117,20 @@ Part A
 
 The updated `myhttpd1.cpp` can be found in the projects directory. It was fixed using the following patch:
 
-    diff --git a/project/myhttpd1.cpp b/project/myhttpd1.cpp
-    index fb655da..f1c56ed 100644
-    --- a/project/myhttpd1.cpp
-    +++ b/project/myhttpd1.cpp
-    @@ -134,6 +134,7 @@ int main(int argc, char *argv[])
-     		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
-     		{
-     			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
-    +			httpHandler(socketfd);
-     		}
-     		else
-     		{
+```diff
+diff --git a/project/myhttpd1.cpp b/project/myhttpd1.cpp
+index fb655da..f1c56ed 100644
+--- a/project/myhttpd1.cpp
++++ b/project/myhttpd1.cpp
+@@ -134,6 +134,7 @@ int main(int argc, char *argv[])
+ 		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
+ 		{
+ 			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
++			httpHandler(socketfd);
+ 		}
+ 		else
+ 		{
+```
 
 Part B
 ------
@@ -153,49 +157,51 @@ Before we get started, let's benchmark the initial implementation to see if we c
      
 I decided to implement threading very simply. I do not use a thread pool and simply create a new thread for each request. The thread is detached and ends on its own. Here's the patch to implement this that I applied to `projects/myhttpd2.cpp`:
 
-    diff --git a/project/myhttpd2.cpp b/project/myhttpd2.cpp
-    index f1c56ed..5222c4a 100644
-    --- a/project/myhttpd2.cpp
-    +++ b/project/myhttpd2.cpp
-    @@ -8,6 +8,7 @@
-     #include <sys/socket.h>
-     #include <arpa/inet.h>
-     #include <unistd.h>
-    +#include <pthread.h>
-     
-     int host_port = 8080;
-     
-    @@ -20,11 +21,13 @@ void usage()
-     	printf("	-p: change default port number for example: -p 8080\n\n");
-     }
-     
-    -int httpHandler(int socketfd)
-    +void* httpHandler(void* fd_p)
-     {
-     	char buffer[1024];
-     	int buffer_len = 1024;
-     	int bytecount;
-    +	int socketfd = *(int*)fd_p;
-    +	free(fd_p);
-     
-     	memset(buffer, 0, buffer_len);
-     	if ((bytecount = recv(socketfd, buffer, buffer_len, 0))== -1)
-    @@ -134,7 +137,14 @@ int main(int argc, char *argv[])
-     		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
-     		{
-     			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
-    -			httpHandler(socketfd);
-    +
-    +			pthread_t thread;
-    +
-    +			void* fdcopy = malloc(4);
-    +			*(int*)fdcopy = socketfd;
-    +
-    +			pthread_create(&thread, NULL, httpHandler, fdcopy);
-    +			pthread_detach(thread);
-     		}
-     		else
-     		{
+```diff
+diff --git a/project/myhttpd2.cpp b/project/myhttpd2.cpp
+index f1c56ed..5222c4a 100644
+--- a/project/myhttpd2.cpp
++++ b/project/myhttpd2.cpp
+@@ -8,6 +8,7 @@
+ #include <sys/socket.h>
+ #include <arpa/inet.h>
+ #include <unistd.h>
++#include <pthread.h>
+ 
+ int host_port = 8080;
+ 
+@@ -20,11 +21,13 @@ void usage()
+ 	printf("	-p: change default port number for example: -p 8080\n\n");
+ }
+ 
+-int httpHandler(int socketfd)
++void* httpHandler(void* fd_p)
+ {
+ 	char buffer[1024];
+ 	int buffer_len = 1024;
+ 	int bytecount;
++	int socketfd = *(int*)fd_p;
++	free(fd_p);
+ 
+ 	memset(buffer, 0, buffer_len);
+ 	if ((bytecount = recv(socketfd, buffer, buffer_len, 0))== -1)
+@@ -134,7 +137,14 @@ int main(int argc, char *argv[])
+ 		if ((socketfd = accept( hsock, (sockaddr*)&sadr, &addr_size))!= -1)
+ 		{
+ 			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
+-			httpHandler(socketfd);
++
++			pthread_t thread;
++
++			void* fdcopy = malloc(4);
++			*(int*)fdcopy = socketfd;
++
++			pthread_create(&thread, NULL, httpHandler, fdcopy);
++			pthread_detach(thread);
+ 		}
+ 		else
+ 		{
+```
 
 Let's test this again:
 
@@ -224,25 +230,27 @@ Part C
 
 I've modified the program `project/myhttpd3.cpp` to daemonize itself using the following patch:
 
-    diff --git a/project/myhttpd3.cpp b/project/myhttpd3.cpp
-    index 5222c4a..068b999 100644
-    --- a/project/myhttpd3.cpp
-    +++ b/project/myhttpd3.cpp
-    @@ -89,6 +89,14 @@ int main(int argc, char *argv[])
-     		opt = getopt( argc, argv, "dhl:p:r:t:n:s:" );
-     	}
-     
-    +	// Daemonize
-    +
-    +	pid_t pid = fork();
-    +
-    +	if (pid < 0) { exit(1); } // Forking failed
-    +	if (pid > 0) { exit(0); } // Kill the parent
-    +	freopen("log.txt", "a+", stdout); // Redirect stdout for good measure
-    +
-     	hsock = socket(AF_INET, SOCK_STREAM, 0);
-     	if (hsock == -1)
-     	{
+```diff
+diff --git a/project/myhttpd3.cpp b/project/myhttpd3.cpp
+index 5222c4a..068b999 100644
+--- a/project/myhttpd3.cpp
++++ b/project/myhttpd3.cpp
+@@ -89,6 +89,14 @@ int main(int argc, char *argv[])
+ 		opt = getopt( argc, argv, "dhl:p:r:t:n:s:" );
+ 	}
+ 
++	// Daemonize
++
++	pid_t pid = fork();
++
++	if (pid < 0) { exit(1); } // Forking failed
++	if (pid > 0) { exit(0); } // Kill the parent
++	freopen("log.txt", "a+", stdout); // Redirect stdout for good measure
++
+ 	hsock = socket(AF_INET, SOCK_STREAM, 0);
+ 	if (hsock == -1)
+ 	{
+```
 
 Part D
 ------
