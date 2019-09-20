@@ -110,6 +110,8 @@ Problem 6
 
 > After you run the program, open a browser and type <http://localhost:8080> and you will see “Welcome to my first page!” in the browser.
 
+Please see `project/readme.txt` for more information on getting this project to build and run.
+
 Part A
 ------
 
@@ -257,31 +259,9 @@ Part D
 
 > (10 points) WeChat is a popular social networking application in China. Red envelope is an application in WeChat which can be used to send “lucky money” to friends. As estimated in 2017, a total of 14.2 billion red envelopes were exchanged via WeChat on New Year’s Eve alone, peaking at midnight with 760,000 transactions per second. It usually takes seconds for WeChat to process each transaction. For such high-volume concurrent transaction requests, what remediations could be used on the server side to ensure each request is served promptly?
 
-WeChat would benefit from having an architecture that allows these exchanges to happen in paralell. Certainly server software should be multithreaded as much as possible. Their overall network architecture should also include load balancers to share this load accross a number of different hosts. Ideally, they would be able to bring hosts up and done as load increases to allow a consistent low latency experience even when load is extreme. Handling 760k requests per second should be a terribly expensive, but they could need a lot of computing power depending on what it actually takes to process a transactions.
+WeChat would benefit from having an architecture that allows these exchanges to happen in paralell. Certainly server software should be multithreaded as much as possible. Their overall network architecture should also include load balancers to share this load accross a number of different hosts. Ideally, they would be able to bring hosts up and done as load increases to allow a consistent, low-latency experience even when load is extreme. Handling 760k requests per second should not be a terribly expensive, but they could need a lot of computing power depending on what it actually takes to process a transaction.
 
 
 -----
 
 Due: By Midnight, Oct 1, 2019
-
-Note: For all the programming assignments, you can choose any operating
-systems you want. I will usually provide C/C++ samples for the
-programming assignments. If you prefer to use other languages, e.g.,
-Java, they are accepted too. A README.txt is required to submit any
-programming assignments. In the README.txt, you need to provide the
-following information:
-
-1)  How to compile your program?
-
-2)  How to run your program?
-
-3)  What is the average running time of your program?
-
-4)  What are the expected output results when I run your program?
-
-5)  Any descriptions which may help me to compile, run, and verify your
-    answers. (FYI: I check every programming assignment turned in!)
-
-Zip all you source code, project files, supporting files, and README.txt
-and submit the all-in-one zip file together to the D2L Dropbox. If you
-have any questions about the homework, please let me know.
