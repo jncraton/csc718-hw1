@@ -115,7 +115,7 @@ Part A
 
 > (10 points) The posted program has a bug. A function call has been skipped on purpose in the program. Review the myhttpd1.cpp code, find the problem, and fix the code.
 
-The updated `myhttpd1.cpp` can be found in the projects directory. It was fixed using the following patch:
+The updated `myhttpd1.cpp` can be found in the `project` directory. It was fixed using the following patch:
 
 ```diff
 diff --git a/project/myhttpd1.cpp b/project/myhttpd1.cpp
@@ -155,7 +155,7 @@ Before we get started, let's benchmark the initial implementation to see if we c
     Longest transaction:	        1.04
     Shortest transaction:	        0.00
      
-I decided to implement threading very simply. I do not use a thread pool and simply create a new thread for each request. The thread is detached and ends on its own. Here's the patch to implement this that I applied to `projects/myhttpd2.cpp`:
+I decided to implement threading very simply. I do not use a thread pool and simply create a new thread for each request. The thread is detached and ends on its own. Here's the patch to implement this that I applied to `project/myhttpd2.cpp`:
 
 ```diff
 diff --git a/project/myhttpd2.cpp b/project/myhttpd2.cpp
